@@ -17,11 +17,9 @@
 {% endif %}
 
 {% for row in rows %}
-    <div class="data-row" style="margin: 10px;">
     {% for key, value in row.items() %}
-        <p><span>{{ key }}</span> : <span>{{ value }}</span></p>
+
     {% endfor %}
-    </div>
 {% endfor %}
 
 {% endblock body %}

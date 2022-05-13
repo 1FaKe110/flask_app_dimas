@@ -125,11 +125,12 @@ def settings():
 
     db_reply = cursor.fetchall()
     keys = ['house_name', 'structure_type', 'sensor_type', 'sensor_ui_value']
-    rows = [{keys[idx]: row for idx, row in enumerate(reply)} for reply in db_reply]
+    rows_dict = [{keys[idx]: row for idx, row in enumerate(reply)} for reply in db_reply]
+    rows = [[row for row in reply] for reply in db_reply]
+    print(rows)
+    pprint(rows_dict)
 
-    pprint(rows)
-
-    return render_template('Settings.html', error=error, rows=rows)
+    return render_template('Settings.html', error=error, rows=rows_dict)
 
 
 @app.route("/api/stats")
