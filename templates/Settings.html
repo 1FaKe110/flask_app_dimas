@@ -3,16 +3,25 @@
 {% block body %}
 
 {% block nav %}
-
-<header class="d-flex justify-content-center py-3">
-    <ul class="nav nav-pills">
-        <li class="nav-item"><a href="status" class="nav-link">Statistics</a></li>
-        <li class="nav-item"><a href="settings" class="nav-link active" aria-current="page">Settings</a></li>
-        <li class="nav-item"><a href="{{ url_for('base') }}" class="nav-link">Logout</a></li>
-    </ul>
-</header>
-
+    <header class="d-flex justify-content-center py-3">
+        <ul class="nav nav-pills">
+            <li class="nav-item"><a href="status" class="nav-link">Statistics</a></li>
+            <li class="nav-item"><a href="settings" class="nav-link active" aria-current="page">Settings</a></li>
+            <li class="nav-item"><a href="{{ url_for('base') }}" class="nav-link">Logout</a></li>
+        </ul>
+    </header>
 {% endblock nav %}
 
+{% if error %}
+    <p><strong>ERROR:</strong> {{ error }}</p>
+{% endif %}
+
+{% for row in rows %}
+    <div class="data-row" style="margin: 10px;">
+    {% for key, value in row.items() %}
+        <p><span>{{ key }}</span> : <span>{{ value }}</span></p>
+    {% endfor %}
+    </div>
+{% endfor %}
 
 {% endblock body %}

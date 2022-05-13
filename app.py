@@ -31,28 +31,28 @@ def login():
     if session['username'] is not None:
         redirect(url_for('status'))
 
-    if request.method == 'POST':
-
-        data = request.form
-        pprint(data)
-
-        username = data['user-username']
-        password = data['user-password']
-
-        conn_users = db_connection('Users')
-        cursor = conn_users.cursor()
-        query = f"SELECT username, password FROM Users WHERE username='{username}'"
-        cursor.execute(query)
-        db_reply = cursor.fetchone()
-
-        if username == 'test' and password == 'test':
-            return redirect(url_for('status'))
-        else:
-            error = "Incorrect username or password"
-            return render_template('Login.html', error=error)
-
-    else:
+    if request.method != 'POST':
         return render_template('Login.html', error=error)
+
+    data = request.form
+    pprint(data)
+
+    username = data['user-username']
+    password = data['user-password']
+
+    conn_users = db_connection('Users')
+    cursor = conn_users.cursor()
+    query = f"SELECT username, password FROM Users WHERE username='{username}' and password='{password}'"
+    cursor.execute(query)
+    db_reply = cursor.fetchone()
+    print(db_reply)
+
+    if db_reply is None:
+        error = "Incorrect username or password"
+        return render_template('Login.html', error=error)
+
+    session['username'] = username
+    return redirect(url_for('status'))
 
 
 @app.route('/registration', methods=['GET', 'POST'])
@@ -82,10 +82,11 @@ def registration():
         return render_template('Register.html', error=error)
 
     query = f"INSERT INTO Users (username, password, email, address, phone) " \
-            f"VALUES('{username}', '{password}', '{email}', '{address}', '{phone}');"
+            f"VALUES(?, ?, ?, ?, ?);"
 
     try:
-        cursor.execute(query)
+        cursor.execute(query, (username, password, email, address, phone))
+        conn_users.commit()
     except Exception as e:
         error = e
         return render_template('Register.html', error=error)
@@ -96,8 +97,10 @@ def registration():
 
 @app.route('/logout')
 def logout():
-    session['username'].pop()
-    return redirect(url_for('base'))
+    if 'username' in session:
+        session['username'].pop()
+        return redirect(url_for('base'))
+    redirect(url_for('login'))
 
 
 @app.route("/user/status")
@@ -107,7 +110,26 @@ def status():
 
 @app.route("/user/settings")
 def settings():
-    return render_template('Settings.html')
+    error = None
+    rows = None
+
+    if "username" not in session:
+        error = "Not authorized"
+        redirect(url_for('login', error=error))
+
+    query = f"SELECT house_name, structure_type, sensor_type, sensor_ui_value FROM Houses WHERE username='{session['username']}'"
+    conn_houses = db_connection('Users')
+    conn_houses.row_factory = sqlite3.Row
+    cursor = conn_houses.cursor()
+    cursor.execute(query)
+
+    db_reply = cursor.fetchall()
+    keys = ['house_name', 'structure_type', 'sensor_type', 'sensor_ui_value']
+    rows = [{keys[idx]: row for idx, row in enumerate(reply)} for reply in db_reply]
+
+    pprint(rows)
+
+    return render_template('Settings.html', error=error, rows=rows)
 
 
 @app.route("/api/stats")
