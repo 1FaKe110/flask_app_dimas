@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="wrapper">
+    <div class="acc">
+        <h5>Have account?</h5>
+        <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+        <p class="want-to-register">or <a href="{{ url_for('registration') }}" class="nav-link">Register</a> now</p>
+
+    </div>
+</div>
+{% endblock body %}

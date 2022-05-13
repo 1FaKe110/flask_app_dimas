@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+{% block nav %}
+
+<header class="d-flex justify-content-center py-3">
+    <ul class="nav nav-pills">
+        <li class="nav-item"><a href="status" class="nav-link active" aria-current="page">Statistics</a></li>
+        <li class="nav-item"><a href="settings" class="nav-link">Settings</a></li>
+        <li class="nav-item"><a href="{{ url_for('base') }}" class="nav-link">Logout</a></li>
+    </ul>
+</header>
+
+{% endblock nav %}
+
+<body>
+    <div>
+        <div id="boiler-temp" name="boiler-temp">
+            boiler temp: <span class="value" id="boiler-temp-value"></span>
+        </div>
+        <div id="boiler-power" name="boiler-power">
+            boiler power: <span class="value" id="boiler-power-value"></span>
+        </div>
+        <div id="kitchen-temp" name="kitchen-temp">
+            kitchen temp: <span class="value" id="kitchen-temp-value"></span>
+        </div>
+        <div id="kitchen-humid" name="kitchen-humid">
+            kitchen power: <span class="value" id="kitchen-humid-value"></span>
+        </div>
+        <div id="room-temp" name="room-temp">
+            room temp: <span class="value" id="room-temp-value"></span>
+        </div>
+        <div id="room-humid" name="room-humid">
+            room power: <span class="value" id="room-humid-value"></span>
+        </div>
+    </div>
+</body>
+
+<script>
+
+    function startLiveUpdate() {
+
+        const values = document.getElementsByClassName('value')
+
+        const boiler_temp_value = values[0]
+        const boiler_power_value = values[1]
+        const kitchen_temp_value = values[2]
+        const kitchen_humid_value = values[3]
+        const room_temp_value = values[4]
+        const room_humid_value = values[5]
+
+        let degree;
+
+        setInterval(function () {
+
+            fetch('http://127.0.0.1:5000/api/stats').then( function (response) {
+                return response.json();
+            }).then( function(data) {
+
+                function set_rotation(degree, id) {
+                    let rotation = "rotate(" + Math.round( degree ).toString() + "deg)";
+
+                    document.getElementById(id + '-full').style.transform = rotation;
+                    document.getElementById(id + '-half').style.transform = rotation;
+                }
+
+                // structure = Object.keys(data);
+                // stats = Object.keys(data[structure]);
+
+                //boiler
+                boiler_temp_value.textContent = data.boiler.temp;
+                //degree = 360 * ( data.boiler.temp / 100 );
+                //set_rotation(degree, boiler_temp_value)
+
+                boiler_power_value.textContent = data.boiler.power;
+                //degree = 360 * ( data.boiler.power / 100 );
+                //set_rotation(degree, boiler_power_value)
+
+                // kitchen
+                kitchen_temp_value.textContent = data.kitchen.temp;
+                //degree = 360 * ( data.kitchen.temp / 100 );
+                //set_rotation(degree, kitchen_temp_value)
+
+                kitchen_humid_value.textContent = data.kitchen.humid;
+                //degree = 360 * ( data.kitchen.humid / 100 );
+                //set_rotation(degree, kitchen_humid_value)
+
+                // room
+                room_temp_value.textContent = data.room.temp;
+                //degree = 360 * ( data.kitchen.temp / 100 );
+                //set_rotation(degree, room_temp_value)
+
+                room_humid_value.textContent = data.room.humid;
+                //degree = 360 * ( data.kitchen.humid / 100 );
+                //set_rotation(degree, room_humid_value)
+
+            }).catch( function(error) {
+                console.log(error);
+            })
+        }, 2000);
+    };  
+
+    document.addEventListener('DOMContentLoaded', function () {
+        startLiveUpdate();
+    });
+
+
+</script>
+
+{% endblock body %}

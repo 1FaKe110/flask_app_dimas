@@ -1,0 +1,31 @@
+.want-to-register {
+    display: inline-flex;
+    justify-content: space-evenly;
+    align-items: center;
+    align-content: center;
+}
+.acc {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    margin-top: 30px;
+}
+.form-floating   {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.w-100 btn btn-lg btn-primary {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.form-signin {
+    margin-top: 30px;
+}
+
+.error {
+    color: #f40000;
+}
