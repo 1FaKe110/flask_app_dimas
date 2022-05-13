@@ -15,6 +15,11 @@
 {% endblock nav %}
 
 <body>
+
+    {% if user %}
+        <p>Hello <span><strong>{{ user }}</strong></span></p>
+    {% endif %}
+
     <div>
         <div id="boiler-temp" name="boiler-temp">
             boiler temp: <span class="value" id="boiler-temp-value"></span>

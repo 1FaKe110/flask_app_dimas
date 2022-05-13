@@ -1,8 +1,8 @@
-import json
+
 from pprint import pprint
 import sqlite3
 
-from flask import Flask, url_for, request, render_template, redirect, jsonify, session, flash
+from flask import Flask, url_for, request, render_template, redirect, jsonify, session
 from flask_cors import CORS
 from random import randrange as rr
 
@@ -15,7 +15,7 @@ def db_connection(db_name: str):
     conn = None
     try:
         conn = sqlite3.connect(f'{db_name}.sqlite')
-    except sqlite3.error as e:
+    except Exception as e:
         print(e)
     return conn
 
@@ -28,7 +28,7 @@ def base():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
-    if session['username'] is not None:
+    if 'username' in session:
         redirect(url_for('status'))
 
     if request.method != 'POST':
@@ -105,19 +105,25 @@ def logout():
 
 @app.route("/user/status")
 def status():
-    return render_template('Status.html')
+    if 'username' not in session:
+        redirect(url_for('login'))
+
+    user = session['username']
+
+    return render_template('Status.html', user=user)
 
 
 @app.route("/user/settings")
 def settings():
     error = None
-    rows = None
 
     if "username" not in session:
         error = "Not authorized"
         redirect(url_for('login', error=error))
 
-    query = f"SELECT house_name, structure_type, sensor_type, sensor_ui_value FROM Houses WHERE username='{session['username']}'"
+    query = f"SELECT house_name, structure_type, sensor_type, sensor_ui_value FROM Houses " \
+            f"WHERE username='{session['username']}'"
+
     conn_houses = db_connection('Users')
     conn_houses.row_factory = sqlite3.Row
     cursor = conn_houses.cursor()
