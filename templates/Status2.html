@@ -1,30 +1,28 @@
 {% extends 'base.html' %}
 
 {% block body %}
-
 {% block nav %}
-
 <header class="d-flex justify-content-center py-3">
     <ul class="nav nav-pills">
-        <li class="nav-item"><a href="{{ url_for('status') }}" class="nav-link active" aria-current="page">Statistics</a></li>
-        <li class="nav-item"><a href="{{ url_for('settings') }}" class="nav-link">Settings</a></li>
+        <li class="nav-item"><a href="Status" class="nav-link active" aria-current="page">Statistics</a></li>
+        <li class="nav-item"><a href="Settings" class="nav-link">Settings</a></li>
         <li class="nav-item"><a href="{{ url_for('base') }}" class="nav-link">Logout</a></li>
     </ul>
 </header>
-
 {% endblock nav %}
 
-<style>
-    .hello-user {
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: baseline;
-        justify-content: space-around;
-    }
-    .user {
-        margin-left: 10px;
-    }
+{% if user %}
+<div class="hello-user">
+    <p>Hello <span><strong>{{ user }}</strong></span></p>
+</div>
+{% endif %}
 
+{% if error %}
+<p class=error><strong>Error:</strong> {{ error }}</p>
+{% endif %}
+
+
+<style>
     .statistics {
         display: grid;
         justify-content: space-evenly;
@@ -38,15 +36,11 @@
         justify-content: center;
     }
     .structure {
-        margin-top: 20px;
-        margin-bottom: 10px;
-        display: inline-block;
-        min-width: 300px;
+
     }
     .structure-h5 {
         display: flex;
         justify-content: center;
-        margin-bottom: 10px;
     }
     .sensor {
         display: inline-flex;
@@ -62,16 +56,6 @@
 
 </style>
 
-{% if user %}
-<div class="hello-user">
-    <p class="hello-user">Hello <span class="user"><strong>{{ user }}</strong></span></p>
-</div>
-{% endif %}
-
-{% if error %}
-<p class=error><strong>Error:</strong> {{ error }}</p>
-{% endif %}
-
 <!--    house_name, structure_type, sensor_type -->
 <div class="statistics">
     {% for house in stats %}
@@ -83,14 +67,14 @@
             {% for sensor in stats[house][structure] %}
             <div class="sensor">
                 <h6>{{ sensor }}:</h6>
-                <p class="value" name="{{house}}.{{structure}}.{{sensor}}">
+                <span class="value" name="{{house}}.{{structure}}.{{sensor}}">value
                     {% if sensor in ['humidity', 'power'] %}
-                        <p class="char-type"> %</p>
+                        <span class="char-type">%</span>
                     {% endif %}
                     {% if sensor in ['temperature'] %}
-                        <p class="char-type"> °C</p>
+                        <span class="char-type">°C</span>
                     {% endif %}
-                </p>
+                </span>
             </div>
             {% endfor %}
         </div>
@@ -103,44 +87,39 @@
 
     function startLiveUpdate() {
 
-        const values = document.getElementsByClassName('value');
-
         setInterval(function () {
 
             fetch('http://127.0.0.1:5000/api/stats').then( function (response) {
                 return response.json();
             }).then( function(data) {
 
-                function set_rotation(degree, id) {
-                    let rotation = "rotate(" + Math.round( degree ).toString() + "deg)";
+                console.log(data[0]);
 
-                    document.getElementById(id + '-full').style.transform = rotation;
-                    document.getElementById(id + '-half').style.transform = rotation;
-                }
 
-                obj_values = Object.values(data);
+                // structure = Object.keys(data);
+                // stats = Object.keys(data[structure]);
 
-                for (var i = 0; i < values.length; i++) {
-                    let name = values[i].getAttribute('name').split(".");
-                    let house = name[0];
-                    let structure = name[1];
-                    let sensor = name[2];
+                //boiler
+<!--                boiler_temp_value.textContent = data.boiler.temp;-->
+<!--                boiler_power_value.textContent = data.boiler.power;-->
 
-                    values[i].textContent = obj_values[0][structure][sensor]
-                }
+                //kitchen
+<!--                kitchen_temp_value.textContent = data.kitchen.temp;-->
+<!--                kitchen_humid_value.textContent = data.kitchen.humid;-->
 
+                //room
+<!--                room_temp_value.textContent = data.room.temp;-->
+<!--                room_humid_value.textContent = data.room.humid;-->
 
             }).catch( function(error) {
                 console.log(error);
             })
-        }, 2000);
-    };  
+        }, 2000000);
+    };
 
     document.addEventListener('DOMContentLoaded', function () {
         startLiveUpdate();
     });
 
-
 </script>
-
 {% endblock body %}

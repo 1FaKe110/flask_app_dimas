@@ -1,8 +1,25 @@
+from pprint import pprint
+from random import randrange as rr
 
-rows = [['country house', 'boiler', 'termometr', None], ['country house', 'boiler', 'power', None]]
+reply = [
+    ('country house', 'boiler', 'termometr'),
+    ('country house', 'boiler', 'power')
+]
 
-tree = {}
+d = {'country house': {
+    'boiler': {
+        'temperature': 100,
+    },
+    'kitchen': {
+        'temperature': 100,
+        'humidity': 100
+    },
+    'room': {
+        'temperature': 100,
+        'humidity': 100
+    }
+}
+}
 
-for path in rows:
-    for elem in path:
-        if path
+
+pprint(data)

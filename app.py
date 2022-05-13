@@ -1,6 +1,6 @@
-
 from pprint import pprint
 import sqlite3
+import requests as rq
 
 from flask import Flask, url_for, request, render_template, redirect, jsonify, session
 from flask_cors import CORS
@@ -40,12 +40,12 @@ def login():
     username = data['user-username']
     password = data['user-password']
 
-    conn_users = db_connection('Users')
-    cursor = conn_users.cursor()
-    query = f"SELECT username, password FROM Users WHERE username='{username}' and password='{password}'"
-    cursor.execute(query)
+    con = db_connection('Users')
+    cursor = con.cursor()
+    query = f"SELECT username, password FROM Users WHERE username = (?) and password = (?);"
+    cursor.execute(query, (username, password))
     db_reply = cursor.fetchone()
-    print(db_reply)
+    con.close()
 
     if db_reply is None:
         error = "Incorrect username or password"
@@ -69,16 +69,17 @@ def registration():
     email = data['email']
     address = data['address']
     phone = data['phone']
-    pprint(data)
 
-    conn_users = db_connection('Users')
-    cursor = conn_users.cursor()
-    query = f"SELECT username FROM Users WHERE username='{username}'"
-    cursor.execute(query)
+    con = db_connection('Users')
+    cursor = con.cursor()
+    query = f"SELECT username FROM Users WHERE username = (?) ;"
+    cursor.execute(query, data['username'])
     db_reply = cursor.fetchone()
 
     if db_reply is not None:
         error = "user already exists"
+        cursor.close()
+        con.close()
         return render_template('Register.html', error=error)
 
     query = f"INSERT INTO Users (username, password, email, address, phone) " \
@@ -86,8 +87,10 @@ def registration():
 
     try:
         cursor.execute(query, (username, password, email, address, phone))
-        conn_users.commit()
+        con.commit()
     except Exception as e:
+        cursor.close()
+        con.close()
         error = e
         return render_template('Register.html', error=error)
 
@@ -98,22 +101,53 @@ def registration():
 @app.route('/logout')
 def logout():
     if 'username' in session:
-        session['username'].pop()
-        return redirect(url_for('base'))
+        session.pop('username')
+        return redirect(url_for('login'))
     redirect(url_for('login'))
 
 
-@app.route("/user/status")
+@app.route("/user/Status")
 def status():
+    error = None
+
     if 'username' not in session:
         redirect(url_for('login'))
 
-    user = session['username']
+    username = session['username']
 
-    return render_template('Status.html', user=user)
+    query = f"SELECT house_name, structure_type, sensor_type FROM Houses WHERE username = (?)"
+
+    con = db_connection('Users')
+    cursor = con.cursor()
+    cursor.execute(query, (username, ))
+    db_reply = cursor.fetchall()
+    cursor.close()
+    con.close()
+
+    data = {}
+    for row in db_reply:
+
+        elements = [elem for elem in row]
+
+        root = elements[0]
+        structure = elements[1]
+        sensor = elements[2]
+
+        if root not in data:
+            data[root] = {structure: {sensor: rr(0, 100)}}
+            continue
+
+        if structure not in data[root]:
+            data[root][structure] = {sensor: rr(0, 100)}
+            continue
+
+        if sensor not in data[root][structure]:
+            data[root][structure][sensor] = rr(0, 100)
+
+    return render_template('Status.html', user=username, error=error, stats=data)
 
 
-@app.route("/user/settings")
+@app.route("/user/Settings")
 def settings():
     error = None
 
@@ -121,40 +155,57 @@ def settings():
         error = "Not authorized"
         redirect(url_for('login', error=error))
 
-    query = f"SELECT house_name, structure_type, sensor_type, sensor_ui_value FROM Houses " \
-            f"WHERE username='{session['username']}'"
+    username = session['username']
 
-    conn_houses = db_connection('Users')
-    conn_houses.row_factory = sqlite3.Row
-    cursor = conn_houses.cursor()
-    cursor.execute(query)
+    query = f"SELECT house_name, structure_type, sensor_type, sensor_ui_value FROM Houses WHERE (?)"
 
-    db_reply = cursor.fetchall()
-    keys = ['house_name', 'structure_type', 'sensor_type', 'sensor_ui_value']
-    rows_dict = [{keys[idx]: row for idx, row in enumerate(reply)} for reply in db_reply]
-    rows = [[row for row in reply] for reply in db_reply]
-    print(rows)
-    pprint(rows_dict)
+    con = db_connection('Users')
+    cursor = con.cursor()
+    cursor.execute(query, (username, ))
+    cursor.close()
+    con.close()
 
-    return render_template('Settings.html', error=error, rows=rows_dict)
+    return render_template('Settings.html', user=session['username'], error=error)
 
 
 @app.route("/api/stats")
 def gen_data():
-    data = {
-        'boiler': {
-            'temp': rr(0, 1000) / 100,
-            'power': rr(0, 1000) / 100,
-        },
-        'kitchen': {
-            'temp': rr(1500, 4000) / 100,
-            'humid': rr(0, 1000) / 100,
-        },
-        'room': {
-            'temp': rr(1500, 4000) / 100,
-            'humid': rr(0, 1000) / 100,
-        }
-    }
+    # if 'username' not in session:
+    #     return jsonify({})
+
+    username = session['username']
+    print(username)
+
+    query = f"SELECT house_name, structure_type, sensor_type FROM Houses " \
+            f"WHERE username=(?)"
+
+    con = db_connection('Users')
+    cursor = con.cursor()
+    cursor.execute(query, (username, ))
+    db_reply = cursor.fetchall()
+    cursor.close()
+    con.close()
+
+    data = {}
+    for row in db_reply:
+
+        elements = [elem for elem in row]
+
+        root = elements[0]
+        structure = elements[1]
+        sensor = elements[2]
+
+        if root not in data:
+            data[root] = {structure: {sensor: rr(0, 100)}}
+            continue
+
+        if structure not in data[root]:
+            data[root][structure] = {sensor: rr(0, 100)}
+            continue
+
+        if sensor not in data[root][structure]:
+            data[root][structure][sensor] = rr(0, 100)
+
     return jsonify(data)
 
 
