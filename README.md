@@ -1,2 +1,2 @@
-# flask_app_dimas
+# flask_app
 smart house
