@@ -72,7 +72,7 @@ def registration():
 
     con = db_connection('Users')
     cursor = con.cursor()
-    query = f"SELECT username FROM Users WHERE username = (?) ;"
+    query = f"SELECT username FROM Users WHERE username = (?);"
     cursor.execute(query, data['username'])
     db_reply = cursor.fetchone()
 
