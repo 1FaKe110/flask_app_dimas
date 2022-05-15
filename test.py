@@ -1,25 +1,9 @@
-from pprint import pprint
-from random import randrange as rr
-
-reply = [
-    ('country house', 'boiler', 'termometr'),
-    ('country house', 'boiler', 'power')
-]
-
-d = {'country house': {
-    'boiler': {
-        'temperature': 100,
-    },
-    'kitchen': {
-        'temperature': 100,
-        'humidity': 100
-    },
-    'room': {
-        'temperature': 100,
-        'humidity': 100
+houses = {
+    'house_id (pk)': {
+        'user_id': "nikira",
+        'address_id': "2d",
+        'room_id': "1",
+        'kitchen_id': "1",
+        'boiler_id': "1",
     }
 }
-}
-
-
-pprint(data)

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DBNavigator.Project.DataEditorManager">
     <record-view-column-sorting-type value="BY_INDEX" />
-    <value-preview-text-wrapping value="true" />
+    <value-preview-text-wrapping value="false" />
     <value-preview-pinned value="false" />
   </component>
   <component name="DBNavigator.Project.DataExportManager">
@@ -36,23 +36,26 @@
     structure_type,
     username)
 values ('country house', 'humidity', 20, 'room', 'test');]]></console>
-      <console name="DB" type="STANDARD" schema="" session="Main"><![CDATA[UPDATE Houses
-SET house_name = 'country'
-WHERE
-    house_name = 'country house'
-ORDER column_or_expression
-LIMIT row_count OFFSET offset;]]></console>
+      <console name="DB" type="STANDARD" schema="" session="Main"><![CDATA[select * from Users]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
     <open-files>
       <object connection-id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" object-ref="schemas/main/tables/Houses" />
+      <object connection-id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" object-ref="consoles/DB" />
+      <object connection-id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" object-ref="schemas/main/tables/Users" />
+      <object connection-id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" object-ref="consoles/Connection" />
     </open-files>
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-actions connection-id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" dataset="main.Users" active-filter-id="c45db6b6-6344-411a-b9e7-0383c2515c8d">
+      <filter id="c45db6b6-6344-411a-b9e7-0383c2515c8d" name="Filter 1" temporary="false" custom-name="false" type="basic" join-type="AND">
+        <condition column="id" operator="=" value="" active="true" />
+      </filter>
+    </filter-actions>
     <filter-actions connection-id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" dataset="main.Houses" active-filter-id="">
       <filter id="1b3399a8-c3cc-4165-b45a-c606fdd8a049" name="country house" temporary="false" custom-name="false" type="basic" join-type="AND">
         <condition column="house_name" operator="=" value="country house" active="true" />

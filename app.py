@@ -84,7 +84,6 @@ def registration():
 
     query = f"INSERT INTO Users (username, password, email, address, phone) " \
             f"VALUES(?, ?, ?, ?, ?);"
-
     try:
         cursor.execute(query, (username, password, email, address, phone))
         con.commit()
