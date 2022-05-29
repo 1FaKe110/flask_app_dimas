@@ -581,9 +581,9 @@ where
       <file file-url="db://fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5/consoles/DB">
         <variable name=":sensor_type" dataType="LITERAL" values="temperature, 123" />
         <variable name=":username" dataType="LITERAL" values="test" />
-        <variable name=":structure_type" dataType="LITERAL" values="room, 123" />
         <variable name=":sensor_ui_value" dataType="NUMERIC" values="22, 21, 123" />
         <variable name=":house_name" dataType="LITERAL" values="country, test, 123" />
+        <variable name=":structure_type" dataType="LITERAL" values="room, 123" />
       </file>
     </execution-variables>
   </component>

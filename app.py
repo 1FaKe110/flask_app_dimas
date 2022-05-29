@@ -1,4 +1,4 @@
-from pprint import pprint
+# from pprint import pprint
 import sqlite3
 import re
 
@@ -82,7 +82,7 @@ def registration():
         return render_template('Register.html', error=error)
 
     if not bool(re.match("[+]7[0-9]{10}", phone)):
-        error = "incorrect phone pattern, it should be +7xxxxxxxx"
+        error = "incorrect phone pattern, it should be +7xxxxxxxxxx"
         return render_template('Register.html', error=error)
 
     query = f"INSERT INTO Users (username, password, email, address, phone) " \
@@ -203,12 +203,12 @@ def settings():
             if value != "":
                 ui_settings[param] = value
 
-        for settings in ui_settings:
-            path = settings.split(".")
+        for sett in ui_settings:
+            path = sett.split(".")
             house_name = path[0]
             structure_name = path[1]
             sensor_name = path[2]
-            value = ui_settings[settings]
+            value = ui_settings[sett]
 
             query = f"update Houses set " \
                     f"sensor_ui_value = '{value}' " \

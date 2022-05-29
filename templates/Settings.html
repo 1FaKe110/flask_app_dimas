@@ -48,10 +48,16 @@ button.save {
 input:focus, input:focus{
     outline: none;
 }
+::placeholder {
+    font-size: 10px;
+    display: flex;
+    justify-content: space-around;
+}
 </style>
 
 
 <div class="settings">
+
     {% for house in data %}
     <div class="house">
         <span class="house-name">house name: <h4 class="house-h4">{{ house }}</h4></span>
@@ -62,7 +68,7 @@ input:focus, input:focus{
             <div class="sensor">
                 <h6>{{ sensor }}:</h6>
                 <form method="post">
-                    <input class="user_input" type="text" name="{{house}}.{{structure}}.{{sensor}}" placeholder="{{ data[house][structure][sensor] }}">
+                    <input class="user_input" type="text" name="{{house}}.{{structure}}.{{sensor}}" placeholder="set to: {{ data[house][structure][sensor] }}">
                     <button class="save" type="submit">Save</button>
                 </form>
             </div>
@@ -72,7 +78,16 @@ input:focus, input:focus{
     </div>
     {% endfor %}
 </div>
+<!--    // TODO  add check for only integers on input-->
+
+<!--    // TODO  button 'rename' for each elem on page-->
+<!--    // TODO  button 'remove' for each elem on page-->
+
+<!--    // TODO  button 'add new house'-->
+<!--    // TODO  button 'add new structure to house'-->
+<!--    // TODO  button 'add new sensor to structure'-->
+
+
 
 {% endblock settings %}
 {% endblock body %}
-
