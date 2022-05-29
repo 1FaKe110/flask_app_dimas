@@ -17,11 +17,44 @@
 <p><strong>ERROR:</strong> {{ error }}</p>
 {% endif %}
 
-<div class="settings">
+{% block settings %}
+<style>
 
+div.settings {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+span.house-name {
+    border-bottom: 1px solid #dadada;
+}
+div.structure, div.sensor {
+    margin-left: 10px;
+}
+input.user_input {
+    border: none;
+}
+input.user_input:hover {
+    border-bottom: 1px solid #aeaeae;
+}
+input.user_input:after {
+    border-bottom: 1px solid #aaaaaa;
+}
+button.save {
+    border: none;
+    background-color: #ffffff;
+}
+input:focus, input:focus{
+    outline: none;
+}
+</style>
+
+
+<div class="settings">
     {% for house in data %}
     <div class="house">
-        <h4 class="house-h4">{{ house }}</h4>
+        <span class="house-name">house name: <h4 class="house-h4">{{ house }}</h4></span>
         {% for structure in data[house] %}
         <div class="structure">
             <h5 class="structure-h5">{{ structure }}</h5>
@@ -29,9 +62,9 @@
             <div class="sensor">
                 <h6>{{ sensor }}:</h6>
                 <form method="post">
-                    <input class="user_input" type="text" name="{{house}}.{{structure}}.{{sensor}}">
+                    <input class="user_input" type="text" name="{{house}}.{{structure}}.{{sensor}}" placeholder="{{ data[house][structure][sensor] }}">
                     <button class="save" type="submit">Save</button>
-                <form>
+                </form>
             </div>
             {% endfor %}
         </div>
@@ -39,4 +72,7 @@
     </div>
     {% endfor %}
 </div>
+
+{% endblock settings %}
 {% endblock body %}
+

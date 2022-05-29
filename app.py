@@ -35,7 +35,6 @@ def login():
         return render_template('Login.html', error=error)
 
     data = request.form
-    pprint(data)
 
     username = data['user-username']
     password = data['user-password']
@@ -70,11 +69,10 @@ def registration():
     address = data['address']
     phone = data['phone']
 
-
     con = db_connection()
     cursor = con.cursor()
     query = f"SELECT username FROM Users WHERE username = (?) ;"
-    cursor.execute(query, (data['username'], ))
+    cursor.execute(query, (data['username'],))
     db_reply = cursor.fetchone()
 
     if db_reply is not None:
@@ -129,7 +127,7 @@ def status():
     cursor.close()
     con.close()
 
-    data = {}
+    data_ = {}
     for row in db_reply:
 
         elements = [elem for elem in row]
@@ -138,16 +136,18 @@ def status():
         structure = elements[1]
         sensor = elements[2]
 
-        if root not in data:
-            data[root] = {structure: {sensor: rr(0, 100)}}
+        if root not in data_:
+            data_[root] = {structure: {sensor: rr(0, 100)}}
             continue
 
-        if structure not in data[root]:
-            data[root][structure] = {sensor: rr(0, 100)}
+        if structure not in data_[root]:
+            data_[root][structure] = {sensor: rr(0, 100)}
             continue
 
-        if sensor not in data[root][structure]:
-            data[root][structure][sensor] = rr(0, 100)
+        if sensor not in data_[root][structure]:
+            data_[root][structure][sensor] = rr(0, 100)
+
+    data = {k: data_[k] for k in sorted(data_)}
 
     return render_template('Status.html', user=username, error=error, stats=data)
 
@@ -171,25 +171,30 @@ def settings():
     cursor.close()
     con.close()
 
-    data = {}
+    data_ = {}
     for row in db_reply:
 
         elements = [elem for elem in row]
-
         root = elements[0]
         structure = elements[1]
         sensor = elements[2]
+        value = elements[3]
 
-        if root not in data:
-            data[root] = {structure: {sensor: rr(0, 100)}}
+        if root not in data_:
+            data_[root] = {structure: {sensor: value}}
             continue
 
-        if structure not in data[root]:
-            data[root][structure] = {sensor: rr(0, 100)}
+        if structure not in data_[root]:
+            data_[root][structure] = {sensor: value}
             continue
 
-        if sensor not in data[root][structure]:
-            data[root][structure][sensor] = rr(0, 100)
+        if sensor not in data_[root][structure]:
+            data_[root][structure][sensor] = value
+
+        if sensor not in data_[root][structure]:
+            data_[root][structure][sensor] = value
+
+    data = {k: data_[k] for k in sorted(data_)}
 
     if request.method == "POST":
         form_data = request.form
@@ -197,6 +202,36 @@ def settings():
         for param, value in form_data.items():
             if value != "":
                 ui_settings[param] = value
+
+        for settings in ui_settings:
+            path = settings.split(".")
+            house_name = path[0]
+            structure_name = path[1]
+            sensor_name = path[2]
+            value = ui_settings[settings]
+
+            query = f"update Houses set " \
+                    f"sensor_ui_value = '{value}' " \
+                    f"where " \
+                    f"house_name = '{house_name}' and " \
+                    f"structure_type = '{structure_name}' and " \
+                    f"sensor_type = '{sensor_name}' and " \
+                    f"username = '{username}';"
+
+            con = db_connection()
+            cursor = con.cursor()
+
+            try:
+                cursor.execute(query)
+                con.commit()
+                cursor.close()
+                con.close()
+                return redirect(url_for('settings'))
+            except Exception as e:
+                cursor.close()
+                con.close()
+                error = e
+                return render_template('Settings.html', error=error)
 
     return render_template('Settings.html', user=session['username'], error=error, data=data)
 
@@ -219,6 +254,7 @@ def gen_data():
     con.close()
 
     data = {}
+
     for row in db_reply:
 
         elements = [elem for elem in row]

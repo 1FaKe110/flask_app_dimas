@@ -127,13 +127,6 @@
                 return response.json();
             }).then( function(data) {
 
-                function set_rotation(degree, id) {
-                    let rotation = "rotate(" + Math.round( degree ).toString() + "deg)";
-
-                    document.getElementById(id + '-full').style.transform = rotation;
-                    document.getElementById(id + '-half').style.transform = rotation;
-                }
-
                 obj_values = Object.values(data);
 
                 for (var h = 0; h < obj_values.length; h++) {
@@ -144,12 +137,12 @@
                         let sensor = name[2];
 
                         values[i].textContent = obj_values[h][structure][sensor];
+                        console.log(obj_values[h][structure][sensor]);
                         id = house + '.'  + structure + '.' + sensor + '-progress-bar';
                         document.getElementById(id).style.transition = "transition:width 1000ms linear;"
                         document.getElementById(id).value = obj_values[h][structure][sensor]
                     }
                 }
-
 
             }).catch( function(error) {
                 console.log(error);

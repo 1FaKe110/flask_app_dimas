@@ -29,8 +29,21 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5">
-      <console name="Connection" type="STANDARD" schema="main" session="Main"><![CDATA[select * from Users]]></console>
-      <console name="DB" type="STANDARD" schema="" session="Main"><![CDATA[select * from Houses;]]></console>
+      <console name="DB" type="STANDARD" schema="main" session="Main"><![CDATA[update Houses
+set 
+    sensor_ui_value = :sensor_ui_value
+where 
+    house_name = :house_name and
+    structure_type = :structure_type and
+    sensor_type = :sensor_type and
+    username = :username;]]></console>
+      <console name="DB 1" type="STANDARD" schema="main" session="Main"><![CDATA[select * from Houses
+where 
+    house_name = 'country' and
+    structure_type = 'room' and
+    sensor_type = 'temperature' and
+    username = 'test';]]></console>
+      <console name="DB 2" type="STANDARD" schema="main" session="Main"><![CDATA[select * from "Houses"]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
@@ -45,7 +58,11 @@
         <condition column="id" operator="=" value="" active="true" />
       </filter>
     </filter-actions>
-    <filter-actions connection-id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" dataset="main.Houses" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" dataset="main.Houses" active-filter-id="EMPTY_FILTER">
+      <filter id="e4473fec-2cd6-4add-98f4-9fbb4476d3cd" name="123" temporary="false" custom-name="false" type="basic" join-type="AND">
+        <condition column="house_name" operator="=" value="123" active="true" />
+      </filter>
+    </filter-actions>
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
@@ -560,6 +577,14 @@
     </general-settings>
   </component>
   <component name="DBNavigator.Project.StatementExecutionManager">
-    <execution-variables />
+    <execution-variables>
+      <file file-url="db://fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5/consoles/DB">
+        <variable name=":sensor_type" dataType="LITERAL" values="temperature, 123" />
+        <variable name=":username" dataType="LITERAL" values="test" />
+        <variable name=":structure_type" dataType="LITERAL" values="room, 123" />
+        <variable name=":sensor_ui_value" dataType="NUMERIC" values="22, 21, 123" />
+        <variable name=":house_name" dataType="LITERAL" values="country, test, 123" />
+      </file>
+    </execution-variables>
   </component>
 </project>
