@@ -1,6 +1,6 @@
 from pprint import pprint
 import sqlite3
-import requests as rq
+import re
 
 from flask import Flask, url_for, request, render_template, redirect, jsonify, session
 from flask_cors import CORS
@@ -11,10 +11,10 @@ CORS(app)
 app.secret_key = 'hello'
 
 
-def db_connection(db_name: str):
+def db_connection():
     conn = None
     try:
-        conn = sqlite3.connect(f'{db_name}.sqlite')
+        conn = sqlite3.connect(f'Users.sqlite')
     except Exception as e:
         print(e)
     return conn
@@ -40,7 +40,7 @@ def login():
     username = data['user-username']
     password = data['user-password']
 
-    con = db_connection('Users')
+    con = db_connection()
     cursor = con.cursor()
     query = f"SELECT username, password FROM Users WHERE username = (?) and password = (?);"
     cursor.execute(query, (username, password))
@@ -70,10 +70,11 @@ def registration():
     address = data['address']
     phone = data['phone']
 
-    con = db_connection('Users')
+
+    con = db_connection()
     cursor = con.cursor()
-    query = f"SELECT username FROM Users WHERE username = (?);"
-    cursor.execute(query, data['username'])
+    query = f"SELECT username FROM Users WHERE username = (?) ;"
+    cursor.execute(query, (data['username'], ))
     db_reply = cursor.fetchone()
 
     if db_reply is not None:
@@ -82,8 +83,13 @@ def registration():
         con.close()
         return render_template('Register.html', error=error)
 
+    if not bool(re.match("[+]7[0-9]{10}", phone)):
+        error = "incorrect phone pattern, it should be +7xxxxxxxx"
+        return render_template('Register.html', error=error)
+
     query = f"INSERT INTO Users (username, password, email, address, phone) " \
             f"VALUES(?, ?, ?, ?, ?);"
+
     try:
         cursor.execute(query, (username, password, email, address, phone))
         con.commit()
@@ -116,9 +122,9 @@ def status():
 
     query = f"SELECT house_name, structure_type, sensor_type FROM Houses WHERE username = (?)"
 
-    con = db_connection('Users')
+    con = db_connection()
     cursor = con.cursor()
-    cursor.execute(query, (username, ))
+    cursor.execute(query, (username,))
     db_reply = cursor.fetchall()
     cursor.close()
     con.close()
@@ -146,7 +152,7 @@ def status():
     return render_template('Status.html', user=username, error=error, stats=data)
 
 
-@app.route("/user/Settings")
+@app.route("/user/Settings", methods=['GET', 'POST'])
 def settings():
     error = None
 
@@ -156,15 +162,43 @@ def settings():
 
     username = session['username']
 
-    query = f"SELECT house_name, structure_type, sensor_type, sensor_ui_value FROM Houses WHERE (?)"
+    query = f"SELECT house_name, structure_type, sensor_type, sensor_ui_value FROM Houses WHERE username = (?)"
 
-    con = db_connection('Users')
+    con = db_connection()
     cursor = con.cursor()
-    cursor.execute(query, (username, ))
+    cursor.execute(query, (username,))
+    db_reply = cursor.fetchall()
     cursor.close()
     con.close()
 
-    return render_template('Settings.html', user=session['username'], error=error)
+    data = {}
+    for row in db_reply:
+
+        elements = [elem for elem in row]
+
+        root = elements[0]
+        structure = elements[1]
+        sensor = elements[2]
+
+        if root not in data:
+            data[root] = {structure: {sensor: rr(0, 100)}}
+            continue
+
+        if structure not in data[root]:
+            data[root][structure] = {sensor: rr(0, 100)}
+            continue
+
+        if sensor not in data[root][structure]:
+            data[root][structure][sensor] = rr(0, 100)
+
+    if request.method == "POST":
+        form_data = request.form
+        ui_settings = {}
+        for param, value in form_data.items():
+            if value != "":
+                ui_settings[param] = value
+
+    return render_template('Settings.html', user=session['username'], error=error, data=data)
 
 
 @app.route("/api/stats")
@@ -173,14 +207,13 @@ def gen_data():
     #     return jsonify({})
 
     username = session['username']
-    print(username)
 
     query = f"SELECT house_name, structure_type, sensor_type FROM Houses " \
             f"WHERE username=(?)"
 
-    con = db_connection('Users')
+    con = db_connection()
     cursor = con.cursor()
-    cursor.execute(query, (username, ))
+    cursor.execute(query, (username,))
     db_reply = cursor.fetchall()
     cursor.close()
     con.close()

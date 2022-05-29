@@ -3,23 +3,40 @@
 {% block body %}
 
 {% block nav %}
-    <header class="d-flex justify-content-center py-3">
-        <ul class="nav nav-pills">
-            <li class="nav-item"><a href="{{ url_for('status') }}" class="nav-link">Statistics</a></li>
-            <li class="nav-item"><a href="{{ url_for('settings') }}" class="nav-link active" aria-current="page">Settings</a></li>
-            <li class="nav-item"><a href="{{ url_for('base') }}" class="nav-link">Logout</a></li>
-        </ul>
-    </header>
+<header class="d-flex justify-content-center py-3">
+    <ul class="nav nav-pills">
+        <li class="nav-item"><a href="{{ url_for('status') }}" class="nav-link">Statistics</a></li>
+        <li class="nav-item"><a href="{{ url_for('settings') }}" class="nav-link active"
+                                aria-current="page">Settings</a></li>
+        <li class="nav-item"><a href="{{ url_for('base') }}" class="nav-link">Logout</a></li>
+    </ul>
+</header>
 {% endblock nav %}
 
 {% if error %}
-    <p><strong>ERROR:</strong> {{ error }}</p>
+<p><strong>ERROR:</strong> {{ error }}</p>
 {% endif %}
 
-{% for row in rows %}
-    {% for key, value in row.items() %}
+<div class="settings">
 
+    {% for house in data %}
+    <div class="house">
+        <h4 class="house-h4">{{ house }}</h4>
+        {% for structure in data[house] %}
+        <div class="structure">
+            <h5 class="structure-h5">{{ structure }}</h5>
+            {% for sensor in data[house][structure] %}
+            <div class="sensor">
+                <h6>{{ sensor }}:</h6>
+                <form method="post">
+                    <input class="user_input" type="text" name="{{house}}.{{structure}}.{{sensor}}">
+                    <button class="save" type="submit">Save</button>
+                <form>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
     {% endfor %}
-{% endfor %}
-
+</div>
 {% endblock body %}

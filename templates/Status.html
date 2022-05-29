@@ -6,7 +6,8 @@
 
 <header class="d-flex justify-content-center py-3">
     <ul class="nav nav-pills">
-        <li class="nav-item"><a href="{{ url_for('status') }}" class="nav-link active" aria-current="page">Statistics</a></li>
+        <li class="nav-item"><a href="{{ url_for('status') }}" class="nav-link active"
+                                aria-current="page">Statistics</a></li>
         <li class="nav-item"><a href="{{ url_for('settings') }}" class="nav-link">Settings</a></li>
         <li class="nav-item"><a href="{{ url_for('base') }}" class="nav-link">Logout</a></li>
     </ul>
@@ -38,28 +39,37 @@
         justify-content: center;
     }
     .structure {
-        margin-top: 20px;
-        margin-bottom: 10px;
-        display: inline-block;
-        min-width: 300px;
+        width: 150px;
+        margin: 30px;
+        display: inline-grid;
+        align-items: baseline;
+        justify-content: space-around;
+        align-content: center;
     }
+
     .structure-h5 {
         display: flex;
         justify-content: center;
         margin-bottom: 10px;
     }
-    .sensor {
-        display: inline-flex;
-        flex-wrap: wrap;
-        align-content: center;
-        justify-content: space-around;
+    .sensor-data-view {
+        display: flex;
         align-items: baseline;
-        padding: 10px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
     }
     .value {
         padding-left: 10px;
     }
 
+    .value, .char-type {
+        margin-bottom: 0px;
+    }
+
+    #progress {
+        transition: width 1s ease-out;
+        color: green;
+    }
 </style>
 
 {% if user %}
@@ -82,15 +92,21 @@
             <h5 class="structure-h5">{{ structure }}</h5>
             {% for sensor in stats[house][structure] %}
             <div class="sensor">
-                <h6>{{ sensor }}:</h6>
-                <p class="value" name="{{house}}.{{structure}}.{{sensor}}">
-                    {% if sensor in ['humidity', 'power'] %}
-                        <p class="char-type"> %</p>
-                    {% endif %}
-                    {% if sensor in ['temperature'] %}
-                        <p class="char-type"> °C</p>
-                    {% endif %}
-                </p>
+                <div class="sensor-data-view">
+                    <h6>{{ sensor }}</h6>
+                    <p class="value" name="{{house}}.{{structure}}.{{sensor}}"></p>
+                    <p class="char-type">
+                        {% if sensor in ['humidity', 'power'] %}
+                        %
+                        {% endif %}
+                        {% if sensor in ['temperature'] %}
+                        °C
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="progress-bar-">
+                    <progress name="progress" id="{{house}}.{{structure}}.{{sensor}}-progress-bar" max="100" value="70"> 70%</progress>
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -120,13 +136,18 @@
 
                 obj_values = Object.values(data);
 
-                for (var i = 0; i < values.length; i++) {
-                    let name = values[i].getAttribute('name').split(".");
-                    let house = name[0];
-                    let structure = name[1];
-                    let sensor = name[2];
+                for (var h = 0; h < obj_values.length; h++) {
+                    for (var i = 0; i < values.length; i++) {
+                        let name = values[i].getAttribute('name').split(".");
+                        let house = name[0];
+                        let structure = name[1];
+                        let sensor = name[2];
 
-                    values[i].textContent = obj_values[0][structure][sensor]
+                        values[i].textContent = obj_values[h][structure][sensor];
+                        id = house + '.'  + structure + '.' + sensor + '-progress-bar';
+                        document.getElementById(id).style.transition = "transition:width 1000ms linear;"
+                        document.getElementById(id).value = obj_values[h][structure][sensor]
+                    }
                 }
 
 
@@ -139,7 +160,6 @@
     document.addEventListener('DOMContentLoaded', function () {
         startLiveUpdate();
     });
-
 
 </script>
 
