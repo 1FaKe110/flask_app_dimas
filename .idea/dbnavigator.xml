@@ -29,14 +29,7 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5">
-      <console name="DB" type="STANDARD" schema="main" session="Main"><![CDATA[update Houses
-set 
-    sensor_ui_value = :sensor_ui_value
-where 
-    house_name = :house_name and
-    structure_type = :structure_type and
-    sensor_type = :sensor_type and
-    username = :username;]]></console>
+      <console name="DB" type="STANDARD" schema="main" session="Main"><![CDATA[select * from "Houses";]]></console>
       <console name="DB 1" type="STANDARD" schema="main" session="Main"><![CDATA[select * from Houses
 where 
     house_name = 'country' and
@@ -47,7 +40,9 @@ where
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files />
+    <open-files>
+      <object connection-id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" object-ref="consoles/DB" />
+    </open-files>
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5" />
@@ -148,7 +143,7 @@ where
           <idle-time-to-disconnect value="30" />
           <idle-time-to-disconnect-pool value="5" />
           <credential-expiry-time value="10" />
-          <max-connection-pool-size value="7" />
+          <max-connection-pool-size value="10" />
           <alternative-statement-delimiter value="" />
         </details>
         <object-filters hide-empty-schemas="false" hide-pseudo-columns="false">
@@ -580,8 +575,8 @@ where
     <execution-variables>
       <file file-url="db://fd903c7e-fdb0-4cad-8ec8-9e032a4b2be5/consoles/DB">
         <variable name=":sensor_type" dataType="LITERAL" values="temperature, 123" />
-        <variable name=":username" dataType="LITERAL" values="test" />
         <variable name=":sensor_ui_value" dataType="NUMERIC" values="22, 21, 123" />
+        <variable name=":username" dataType="LITERAL" values="test" />
         <variable name=":house_name" dataType="LITERAL" values="country, test, 123" />
         <variable name=":structure_type" dataType="LITERAL" values="room, 123" />
       </file>

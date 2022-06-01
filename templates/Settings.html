@@ -19,14 +19,28 @@
 
 {% block settings %}
 <style>
-
 div.settings {
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
-
-span.house-name {
+div.house {
+    width: 30%;
+}
+form {
+    width: fit-content;
+}
+div.house-name {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-evenly;
+    align-content: flex-end;
+    flex-wrap: nowrap;
+    flex-direction: row;
+}
+.house-h5 {
+    margin-bottom: 10px;
+    margin-left: 5px;
     border-bottom: 1px solid #dadada;
 }
 div.structure, div.sensor {
@@ -60,7 +74,10 @@ input:focus, input:focus{
 
     {% for house in data %}
     <div class="house">
-        <span class="house-name">house name: <h4 class="house-h4">{{ house }}</h4></span>
+        <div class="house-name">
+            <span>house name: </span>
+            <h5 class="house-h5">{{ house }}</h5>
+        </div>
         {% for structure in data[house] %}
         <div class="structure">
             <h5 class="structure-h5">{{ structure }}</h5>
@@ -68,7 +85,7 @@ input:focus, input:focus{
             <div class="sensor">
                 <h6>{{ sensor }}:</h6>
                 <form method="post">
-                    <input class="user_input" type="text" name="{{house}}.{{structure}}.{{sensor}}" placeholder="set to: {{ data[house][structure][sensor] }}">
+                    <input class="user_input" type="number" min="0" max="100" step="1" name="{{house}}.{{structure}}.{{sensor}}" placeholder="set to: {{ data[house][structure][sensor] }}">
                     <button class="save" type="submit">Save</button>
                 </form>
             </div>
@@ -78,14 +95,118 @@ input:focus, input:focus{
     </div>
     {% endfor %}
 </div>
-<!--    // TODO  add check for only integers on input-->
+
+<input type="button" onclick="addNewHouse()" value="add new house">
+<div id="newHouse"></div>
+
+
+<script>
+function show_form() {
+    let l = document.getElementById('add_new_house_form').elements
+
+    let dict = {
+        'house_name': l[0].value,
+        'boiler-temperature': l[1].value
+    };
+
+    for (let i = 2; i < l.length - 2; i++) {
+        dict[l[i].id + i.toString()] = l[i].value;
+    }
+
+    console.log(dict)
+}
+
+function addNewHouse() {
+    var div = document.getElementById('newHouse');
+    function house_base() {
+        var form = document.createElement("form");
+        form.setAttribute("id", "add_new_house_form");
+        form.setAttribute("action", "show_form()");
+
+        var house_name = document.createElement('input');
+        house_name.setAttribute("placeholder", "house name");
+        house_name.setAttribute("id", "house_name");
+        form.appendChild(house_name);
+
+        var boiler_temperature = document.createElement('select');
+        boiler_temperature.setAttribute("placeholder", "boiler_temperature");
+        boiler_temperature.setAttribute("name", "boiler_temperature");
+        boiler_temperature.setAttribute("id", "boiler_temperature");
+
+
+        var boiler = document.createElement('option');
+        boiler.setAttribute("value", "0-100");
+        boiler.innerHTML = "boiler temperature default";
+
+        boiler_temperature.appendChild(boiler);
+        form.appendChild(boiler_temperature);
+
+        function addRow() {
+
+            var div = document.createElement('div');
+            div.setAttribute("id", "row");
+
+            var structure = document.createElement('input');
+            structure.setAttribute("placeholder", "structure");
+            structure.setAttribute("id", "new_structure");
+            div.appendChild(structure);
+
+            var sensor = document.createElement('select');
+            sensor.setAttribute("placeholder", "sensor");
+            sensor.setAttribute("id", "new_sensor");
+            // sensor.setAttribute("size", "2");
+
+            var temp_sensor = document.createElement('option');
+            temp_sensor.setAttribute("value", "temperature");
+            let text = "temperature";
+            temp_sensor.innerHTML = text;
+            sensor.appendChild(temp_sensor);
+
+            var humid_sensor = document.createElement('option');
+            humid_sensor.setAttribute("value", "humidity");
+            text = "humidity";
+            humid_sensor.innerHTML = text;
+            sensor.appendChild(humid_sensor);
+
+            div.appendChild(sensor);
+
+            var sensor_ui_value = document.createElement('input');
+            sensor_ui_value.setAttribute("placeholder", "sensor_ui_value");
+            sensor_ui_value.setAttribute("id", "sensor_ui_value");
+            div.appendChild(sensor_ui_value);
+
+            var elem = document.getElementById('add_new_house');
+            form.insertBefore(div, elem);
+        }
+        var add_row_bttn = document.createElement("input");
+        add_row_bttn.setAttribute("type", "button");
+        add_row_bttn.setAttribute("id", "add_new_house");
+        add_row_bttn.setAttribute("onclick", addRow());
+        add_row_bttn.setAttribute("value", "add structure");
+        add_row_bttn.onclick = function() {addRow();};
+        form.appendChild(add_row_bttn);
+
+        var s = document.createElement("input");
+<!--        s.setAttribute("type", "submit");-->
+        s.setAttribute("type", "button");
+        s.setAttribute("value", "Submit");
+        s.onclick = function() {show_form();};
+        form.appendChild(s);
+
+        document.getElementById('newHouse').appendChild(form);
+    }
+    house_base()
+}
+
+
+</script>
 
 <!--    // TODO  button 'rename' for each elem on page-->
-<!--    // TODO  button 'remove' for each elem on page-->
+<!--    // TODO  button 'add' for each elem on page-->
 
-<!--    // TODO  button 'add new house'-->
-<!--    // TODO  button 'add new structure to house'-->
-<!--    // TODO  button 'add new sensor to structure'-->
+<!--    // TODO  add check if new_structure count <= 2-->
+<!--    // TODO  beautify 'add new house' -->
+
 
 
 

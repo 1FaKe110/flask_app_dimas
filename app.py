@@ -71,7 +71,7 @@ def registration():
 
     con = db_connection()
     cursor = con.cursor()
-    query = f"SELECT username FROM Users WHERE username = (?) ;"
+    query = f"SELECT username FROM Users WHERE username = (?);"
     cursor.execute(query, (data['username'],))
     db_reply = cursor.fetchone()
 
@@ -243,7 +243,7 @@ def gen_data():
 
     username = session['username']
 
-    query = f"SELECT house_name, structure_type, sensor_type FROM Houses " \
+    query = f"SELECT house_name, structure_type, sensor_type, sensor_ui_value  FROM Houses " \
             f"WHERE username=(?)"
 
     con = db_connection()
@@ -254,7 +254,6 @@ def gen_data():
     con.close()
 
     data = {}
-
     for row in db_reply:
 
         elements = [elem for elem in row]
@@ -262,17 +261,30 @@ def gen_data():
         root = elements[0]
         structure = elements[1]
         sensor = elements[2]
+        user_value = int(elements[3])
+        random_temp = rr(user_value - 2, user_value + 2)
 
         if root not in data:
-            data[root] = {structure: {sensor: rr(0, 100)}}
+            if structure == 'boiler':
+                data[root] = {structure: {sensor: rr(0, 100)}}
+                continue
+            data[root] = {structure: {sensor: random_temp}}
             continue
 
         if structure not in data[root]:
-            data[root][structure] = {sensor: rr(0, 100)}
+            if structure == 'boiler':
+                data[root] = {structure: {sensor: rr(0, 100)}}
+                continue
+
+            data[root][structure] = {sensor: random_temp}
             continue
 
         if sensor not in data[root][structure]:
-            data[root][structure][sensor] = rr(0, 100)
+            if structure == 'boiler':
+                data[root] = {structure: {sensor: rr(0, 100)}}
+                continue
+
+            data[root][structure][sensor] = random_temp
 
     return jsonify(data)
 
